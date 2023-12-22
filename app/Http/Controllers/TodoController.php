@@ -24,7 +24,9 @@ class TodoController extends Controller
 
     public function show($id)
     {
-        $todo =
+        $todo = Todo::where('id', $id)->get();
+
+        return response()->json($todo, 200);
     }
 
 }
