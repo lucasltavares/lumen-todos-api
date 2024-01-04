@@ -1,9 +1,10 @@
 <?php
 
+use App\Models\Todo;
+use Laravel\Lumen\Testing\DatabaseMigrations;
+use Laravel\Lumen\Testing\DatabaseTransactions;
 class TodoControllerTest extends TestCase
 {
-    use \Laravel\Lumen\Testing\DatabaseMigrations;
-
     public function testUserCanCreateTodo()
     {
         // Prepare
@@ -39,14 +40,54 @@ class TodoControllerTest extends TestCase
     {
 
         // Prepare
-        $todo = \App\Models\Todo::factory()->create();
+        $todo = Todo::factory()->create();
 
         // Act
         $uri = '/todos/' . $todo->id;
         $response = $this->get($uri);
 
         // Assert
-        $response->assertResponseOk();
+        $response->assertResponseStatus(200);
         $response->seeJsonContains(['title' => $todo->title]);
+    }
+
+    public function testUserShouldReceive404() {
+        //Prepare
+
+
+        //Act
+        $response = $this->get('/todos/1');
+
+        //Assert
+        $response->assertResponseStatus(404);
+        $response->seeJsonContains(["message" => "Record not found"]);
+    }
+
+    public function testUserCanDelete() {
+        // Prepare
+        $todo = Todo::factory()->create();
+
+        // Act
+        $uri = '/todos/' . $todo->id;
+        $response = $this->delete($uri);
+
+        // Assert
+        $response->assertResponseStatus(204);
+    }
+
+    public function testUserCanSetTodoDone() {
+        // Prepare
+        $todo = Todo::factory()->create();
+
+        // Act
+        $uri = '/todos/' . $todo->id . '/status/done';
+        $response = $this->post($uri);
+
+        // Assert
+        $response->assertResponseStatus(200);
+        $response->seeInDatabase('todos', [
+            'id' => $todo->id,
+            'done' => true
+        ]);
     }
 }

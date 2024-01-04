@@ -26,6 +26,16 @@ class Todo extends Model
         ]);
     }
 
+    public function getIncrementing() // Remove autoincrement from PK uuid.
+    {
+        return false;
+    }
+
+    public function getKeyType() // Change type from int to string on PK uuid.
+    {
+        return 'string';
+    }
+
     // Generate UUID automatically.
     protected static function boot()
     {
